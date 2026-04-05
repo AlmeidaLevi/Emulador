@@ -1,11 +1,12 @@
 from array import array
 
+
 class RAM:
     def __init__(self):
         self.memory = array('L', [0]) * (1024 * 1024 // 4)
 
     def read_word(self, address):
-        word_address = (address & 0b11111111111111111111) >> 2
+        word_address = address & 0b111111111111111111
         return self.memory[word_address]
 
     def write_word(self, address, value):
@@ -34,9 +35,3 @@ class RAM:
         value = (value & 0xFF) << (byte_address << 3)
         word = word | value
         self.memory[word_address] = word
-
-
-
-
-
-
