@@ -19,14 +19,26 @@ class CPU:
         def tick(self):
             self.cycles += 1
 
-        def alu(self, op, a, b):
-            if op == 'AND':
-                return (a + b) & 0xFFFFFFFF
-            elif op == 'OR':
-                return (a | b) & 0xFFFFFFFF
-            elif op == 'NOT':
-                return (~a) & 0xFFFFFFFF
-            elif op == 'PASS':
-                return (a ^ b) & 0xFFFFFFFF
-            else:
-                exit(0)
+        def alu(self, f1, f2, a, b, ENa, ENb, INVa, inc):
+            f1 = f1 & 0b1
+            f2 = f2 & 0b1
+            ENa = ENa & 0b1
+            ENb = ENb & 0b1
+            INVa = INVa & 0b1
+            inc = inc & 0b1
+
+            a = (a & 0xFFFFFFFF) if ENa == 1 else 0
+            a = a if INVa == 0 else ~a
+
+            b = (b & 0xFFFFFFFF) if ENb == 1 else 0
+
+            if f1 | f2 == 0:
+                return a & b
+
+            if f1 == 0 and f2 == 1:
+                return a | b
+
+            if (f1 & f2) == 1:
+                return a + b + inc
+
+            return ~b
