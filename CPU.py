@@ -2,6 +2,7 @@ from RAM import RAM
 
 class CPU:
         def __init__(self, ram: RAM):
+            self.cycles = 0
             self.MAR = 0
             self.MDR = 0
             self.PC = 0
@@ -14,6 +15,9 @@ class CPU:
             self.H = 0
             self.Z = 0
             self.N = 0
+
+        def tick(self):
+            self.cycles += 1
 
         def alu(self, op, a, b):
             if op == 'AND':
