@@ -76,3 +76,42 @@ class CPU:
                 return self.OPC
 
             return 0
+
+        def write_C_in_register(self, code, value):
+            if code == 0b0000:
+                self.MAR = value
+                return
+
+            if code == 0b0001:
+                self.MDR = value
+                return
+
+            if code == 0b0010:
+                self.PC = value
+                return
+
+            if code == 0b0011:
+                self.SP = value
+                return
+
+            if code == 0b0100:
+                self.LV = value
+                return
+
+            if code == 0b0101:
+                self.CPP = value
+                return
+
+            if code == 0b0110:
+                self.TOS = value
+                return
+
+            if code == 0b0111:
+                self.OPC = value
+                return
+
+            if code == 0b1000:
+                self.H = value
+                return
+
+            return
