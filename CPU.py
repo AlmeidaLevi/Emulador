@@ -19,7 +19,7 @@ class CPU:
         def tick(self):
             self.cycles += 1
 
-        def alu(self, f1, f2, a, b, ENa, ENb, INVa, inc):
+        def alu(self, a, b, f1, f2, ENa, ENb, INVa, inc):
             f1 = f1 & 0b1
             f2 = f2 & 0b1
             ENa = ENa & 0b1
@@ -39,7 +39,7 @@ class CPU:
                 return a | b
 
             if (f1 & f2) == 1:
-                return a + b + inc
+                return (a + b + inc) & 0xFFFFFFFF
 
             return ~b
 
