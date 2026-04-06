@@ -19,7 +19,7 @@ class CPU:
         def tick(self):
             self.cycles += 1
 
-        def alu(self, f1, f2, a, b, ENa, ENb, INVa, inc):
+        def alu(self, a, b, f1, f2, ENa, ENb, INVa, inc):
             f1 = f1 & 0b1
             f2 = f2 & 0b1
             ENa = ENa & 0b1
@@ -39,6 +39,79 @@ class CPU:
                 return a | b
 
             if (f1 & f2) == 1:
-                return a + b + inc
+                return (a + b + inc) & 0xFFFFFFFF
 
             return ~b
+
+        def get_register_value(self, code):
+            if code == 0b0000:
+                return self.MDR
+
+            if code == 0b0001:
+                return self.PC
+
+            if code == 0b0010:
+                self.MBR & 0xFF
+
+                if self.MBR & 0x80:
+                    return self.MBR | 0xFFFFFF00
+                return self.MBR
+
+            if code == 0b0011:
+                return self.MBR & 0xFF
+
+            if code == 0b0100:
+                return self.SP
+
+            if code == 0b0101:
+                return self.LV
+
+            if code == 0b0110:
+                return self.CPP
+
+            if code == 0b0111:
+                return self.TOS
+
+            if code == 0b1000:
+                return self.OPC
+
+            return 0
+
+        def write_C_in_register(self, code, value):
+            if code == 0b0000:
+                self.MAR = value
+                return
+
+            if code == 0b0001:
+                self.MDR = value
+                return
+
+            if code == 0b0010:
+                self.PC = value
+                return
+
+            if code == 0b0011:
+                self.SP = value
+                return
+
+            if code == 0b0100:
+                self.LV = value
+                return
+
+            if code == 0b0101:
+                self.CPP = value
+                return
+
+            if code == 0b0110:
+                self.TOS = value
+                return
+
+            if code == 0b0111:
+                self.OPC = value
+                return
+
+            if code == 0b1000:
+                self.H = value
+                return
+
+            return

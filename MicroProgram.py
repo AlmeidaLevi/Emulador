@@ -1,3 +1,11 @@
+# ADDR endereço da proxima microinstrução
+# JAM, lista de 3 bits, [JPMC, JAMZ, JAMN]
+# ALU, lista de 8 bits, [f1, f2, ENa, ENb, INVa, INC, SLL8, SRA1]
+# C lista de 8 bits que escolhe um registrador pra mandar o resultado da ULA,
+# [MAR, MDR, PC, SP, LV, CPP, TOS, OPC, H]
+# M lista de 3 bits, [fetch, read, write]
+# B "endereço" do registrador a ser lido pra pegar o valor B pra ULA
+
 class MicroInst:
     def __init__(self, ADDR: int, JAM: list[int], ALU: list[int], C: list[int], M: list[int], B: int):
         self.B = B & 0b1111
