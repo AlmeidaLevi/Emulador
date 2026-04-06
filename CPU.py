@@ -42,3 +42,37 @@ class CPU:
                 return a + b + inc
 
             return ~b
+
+        def get_register_value(self, code):
+            if code == 0b0000:
+                return self.MDR
+
+            if code == 0b0001:
+                return self.PC
+
+            if code == 0b0010:
+                self.MBR & 0xFF
+
+                if self.MBR & 0x80:
+                    return self.MBR | 0xFFFFFF00
+                return self.MBR
+
+            if code == 0b0011:
+                return self.MBR & 0xFF
+
+            if code == 0b0100:
+                return self.SP
+
+            if code == 0b0101:
+                return self.LV
+
+            if code == 0b0110:
+                return self.CPP
+
+            if code == 0b0111:
+                return self.TOS
+
+            if code == 0b1000:
+                return self.OPC
+
+            return 0
