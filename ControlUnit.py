@@ -1,60 +1,71 @@
 from RAM import RAM
 from CPU import CPU
-from MicroProgram import MicroInst
-from MicroProgram import micro_program
+from MicroProgram import microprogram
 
 class ControlUnit:
-    def __init__(self, microprogram: tuple[MicroInst]):
+    def __init__(self):
         self.MPC = 0
-        self.microprogram = microprogram
+        self.MIC = MicroProgram.microprogram
 
 
     def step(self, cpu: CPU, ram: RAM):
-        micro_inst = self.microprogram[self.MPC]
+        micro_inst = self.MIC[self.MPC]
+
+        if micro_inst == 0:
+            return False
+
+        ADDR = (micro_inst >> 27) & 0b11111111
+        JMPC = (micro_inst >> 26) & 0b1
+        JAMN = (micro_inst >> 25) & 0b1
+        JAMZ = (micro_inst >> 24) & 0b1
+        ALU = (micro_inst >> 16) & 0b11111111
+        C = (micro_inst >> 7) & 0b111111111
+        M = (micro_inst >> 4) & 0b111
+        B = micro_inst & 0b111111111
+
+
+        if (M >> 2) & 0b1 != 0:
+            cpu.MDR = ram.read_word(cpu.MAR)
+
+        if (M >> 1) & 0b1 != 0:
+            cpu.MBR = ram.read_byte(cpu.PC)
+        elif M & 0b1 != 0:
+            ram.write_word(cpu.MAR, cpu.MDR)
 
         a_value = cpu.H # Valor A sempre vem do registrador H
-        b_value = cpu.get_register_value(micro_inst.B)
+        b_value = cpu.get_register_value(B)
 
-        ALU = micro_inst.ALU
+        left_shift = (ALU >> 7) & 0b11
+        right_shift = (ALU >> 4) & 0b11
+        (ALU >> 6) & 0b11
+        f1 = (ALU >> 5) & 0b1
+        f2 = (ALU >> 4) & 0b1
+        ENa = (ALU >> 3) & 0b1
+        INVa = (ALU >> 2) & 0b1
+        ENb = (ALU >> 1) & 0b1
+        inc = ALU & 0b1
 
-        result = cpu.alu(a_value, b_value, ALU[0],
-                         ALU[1], ALU[2], ALU[3],
-                         ALU[4], ALU[5])
-
-        # ALU[6] == SLL8
-        if ALU[6] & 0b1:
-            result = (result << 8) & 0xFFFFFFFF
-
-        # ALU[7] == SRA1
-        if ALU[7] & 0b1:
-            result = (result >> 1) & 0xFFFFFFFF
+        result = cpu.alu(a_value, b_value, left_shift, right_shift, f1, f2, ENa, INVa, ENb, inc)
 
         cpu.Z = 1 if result == 0 else 0
         cpu.N = 1 if (result & 0x80000000) != 0 else 0
 
-        for i, c in enumerate(micro_inst.C):
-            if c != 0:
-                cpu.write_C_in_register(i, result)
+        cpu.write_C_in_register(C, result)
 
         #Fetch pode ser executado junto com read ou write
-        if micro_inst.M[0] != 0:
-            cpu.MDR = ram.read_word(cpu.MAR)
 
-        if micro_inst.M[1] != 0:
-            cpu.MBR = ram.read_byte(cpu.MAR)
-        elif micro_inst.M[2] != 0:
-            ram.write_word(cpu.MAR, cpu.MDR)
+        self.MPC = ADDR
 
+        if JMPC:
+            self.MPC = ADDR | cpu.MBR
 
-        self.MPC = micro_inst.ADDR
+        if JAMZ and cpu.Z:
+            self.MPC = self.MPC | 0x100
 
-        if micro_inst.JAM[0] != 0:
-            self.MPC = micro_inst.ADDR | cpu.MBR
-
-        if micro_inst.JAM[1] != 0 and cpu.Z:
-            self.MPC = self.MPC | 0x80
-        elif micro_inst.JAM[2] != 0 and cpu.N:
-            self.MPC = self.MPC | 0x80
+        elif JAMN and cpu.N:
+            self.MPC = self.MPC | 0x100
 
         cpu.tick()
+
+        return True
 

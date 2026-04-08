@@ -1,7 +1,7 @@
 from RAM import RAM
 
 class CPU:
-        def __init__(self, ram: RAM):
+        def __init__(self):
             self.cycles = 0
             self.MAR = 0
             self.MDR = 0
@@ -19,13 +19,7 @@ class CPU:
         def tick(self):
             self.cycles += 1
 
-        def alu(self, a, b, f1, f2, ENa, ENb, INVa, inc):
-            f1 = f1 & 0b1
-            f2 = f2 & 0b1
-            ENa = ENa & 0b1
-            ENb = ENb & 0b1
-            INVa = INVa & 0b1
-            inc = inc & 0b1
+        def alu(self, a, b, left_shift, right_shift, f1, f2, ENa, ENb, INVa, inc):
 
             a = (a & 0xFFFFFFFF) if ENa == 1 else 0
             a = a if INVa == 0 else ~a
@@ -33,15 +27,26 @@ class CPU:
             b = (b & 0xFFFFFFFF) if ENb == 1 else 0
 
             if f1 | f2 == 0:
-                return a & b
+                result = a & b
 
-            if f1 == 0 and f2 == 1:
-                return a | b
+            elif f1 == 0 and f2 == 1:
+                result = a | b
 
-            if (f1 & f2) == 1:
-                return (a + b + inc) & 0xFFFFFFFF
+            elif (f1 & f2) == 1:
+                result = (a + b + inc) & 0xFFFFFFFF
 
-            return ~b
+            else:
+                result = ~b
+
+            # ALU[6] == SLL8
+            if left_shift == 1:
+                result = (result << 8) & 0xFFFFFFFF
+
+            # ALU[7] == SRA1
+            if right_shift == 0b01:
+                result = (result >> 1) & 0xFFFFFFFF
+
+            return result
 
         def get_register_value(self, code):
             if code == 0b0000:
@@ -51,9 +56,9 @@ class CPU:
                 return self.PC
 
             if code == 0b0010:
-                self.MBR & 0xFF
+                self.MBR = self.MBR & 0xFF
 
-                if self.MBR & 0x80:
+                if self.MBR & 0x100:
                     return self.MBR | 0xFFFFFF00
                 return self.MBR
 
@@ -78,39 +83,39 @@ class CPU:
             return 0
 
         def write_C_in_register(self, code, value):
-            if code == 0b0000:
+            if code & 0b1:
                 self.MAR = value
                 return
 
-            if code == 0b0001:
+            if (code >> 1) & 0b1:
                 self.MDR = value
                 return
 
-            if code == 0b0010:
+            if (code >> 2) & 0b1:
                 self.PC = value
                 return
 
-            if code == 0b0011:
+            if (code >> 3) & 0b1:
                 self.SP = value
                 return
 
-            if code == 0b0100:
+            if (code >> 4) & 0b1:
                 self.LV = value
                 return
 
-            if code == 0b0101:
+            if (code >> 5) & 0b1:
                 self.CPP = value
                 return
 
-            if code == 0b0110:
+            if (code >> 6) & 0b1:
                 self.TOS = value
                 return
 
-            if code == 0b0111:
+            if(code >> 7) & 0b1:
                 self.OPC = value
                 return
 
-            if code == 0b1000:
+            if (code >> 8) & 0b1:
                 self.H = value
                 return
 
