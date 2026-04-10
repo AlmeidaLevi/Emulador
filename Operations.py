@@ -4,7 +4,7 @@ def to_signed(value, bits): #Garante que o valor mantenha o sinal
     return value
 
 def booth_multiply(A, Q, M, Q_1, n, bits):
-    mask = (1 << bits) - 1 #Números só podem ter um único tamanho
+    mask = (1 << bits) - 1
 
     if not (Q & 0b1) and Q_1:
         A = to_signed((A + M) & mask, bits)
@@ -64,6 +64,6 @@ def non_restoring_division(A, Q, M, n, bits):
     if A & (1 << (bits - 1)):
         A = to_signed((A + M) & mask, bits) #Ajusta o resto caso seja negativo
 
-    return to_signed(A, bits), to_signed(Q, bits) #A = resto; Q = quociente
+    return  to_signed(Q, bits),to_signed(A, bits) #A = resto; Q = quociente
 
 
