@@ -1,7 +1,7 @@
-from RAM import RAM
+import Operations
 
 class CPU:
-        def __init__(self, ram: RAM):
+        def __init__(self):
             self.cycles = 0
             self.MAR = 0
             self.MDR = 0
@@ -19,29 +19,49 @@ class CPU:
         def tick(self):
             self.cycles += 1
 
-        def alu(self, a, b, f1, f2, ENa, ENb, INVa, inc):
-            f1 = f1 & 0b1
-            f2 = f2 & 0b1
-            ENa = ENa & 0b1
-            ENb = ENb & 0b1
-            INVa = INVa & 0b1
-            inc = inc & 0b1
+        def alu(self, a, b, left_shift, right_shift, f2, f1, f0, ENa, ENb, INVa, inc):
 
             a = (a & 0xFFFFFFFF) if ENa == 1 else 0
             a = a if INVa == 0 else ~a
 
             b = (b & 0xFFFFFFFF) if ENb == 1 else 0
 
-            if f1 | f2 == 0:
-                return a & b
+            result = 0
+            if not f2:
+                if ~f1 & ~f0: #AND
+                    result = ~b
 
-            if f1 == 0 and f2 == 1:
-                return a | b
+                elif ~f1 & f0: #OR
+                    result = a & b
 
-            if (f1 & f2) == 1:
-                return (a + b + inc) & 0xFFFFFFFF
+                elif f1 & ~f0: #NOT_b
+                    result = a | b
 
-            return ~b
+                elif f1 & f0: #SUM
+                    result = (a + b + inc) & 0xFFFFFFFF
+            else:
+                if ~f1 & ~f0: #XOR
+                    result = a ^ b
+
+                elif ~f1 & f0: #a * b (MULTIPLY)
+                    result = Operations.booth_multiply(0, a, b, 0, 32, 32)
+
+                elif f1 & ~f0: #a // b (INTEGER DIVISION)
+                    result = Operations.non_restoring_division(0, a, b, 0, 32)[0]
+
+                elif f1 & f0: #a % b (MOD)
+                    result = Operations.non_restoring_division(0, a, b, 0, 32)[1]
+
+            self.Z = 1 if result == 0 else 0
+            self.N = 1 if (result & 0x80000000) != 0 else 0
+
+            if left_shift == 1:
+                result = (result << 8) & 0xFFFFFFFF
+
+            if right_shift == 0b01:
+                result = (result >> 1) & 0xFFFFFFFF
+
+            return result
 
         def get_register_value(self, code):
             if code == 0b0000:
@@ -51,9 +71,9 @@ class CPU:
                 return self.PC
 
             if code == 0b0010:
-                self.MBR & 0xFF
+                self.MBR = self.MBR & 0xFF
 
-                if self.MBR & 0x80:
+                if self.MBR & 0x100:
                     return self.MBR | 0xFFFFFF00
                 return self.MBR
 
@@ -77,41 +97,33 @@ class CPU:
 
             return 0
 
-        def write_C_in_register(self, code, value):
-            if code == 0b0000:
+        def write_register_value(self, code, value):
+            """Recebe um valor do barramento C que é escrito em um ou mais dos registradores.
+            Os registradores que recebem o valor são selecionados a partir do código (code) dado pela Unidade de Controle"""
+
+            if code & 0b000000001:
                 self.MAR = value
-                return
 
-            if code == 0b0001:
+            if code & 0b000000010:
                 self.MDR = value
-                return
 
-            if code == 0b0010:
+            if code & 0b000000100:
                 self.PC = value
-                return
 
-            if code == 0b0011:
+            if code & 0b000001000:
                 self.SP = value
-                return
 
-            if code == 0b0100:
+            if code & 0b000010000:
                 self.LV = value
-                return
 
-            if code == 0b0101:
+            if code & 0b000100000:
                 self.CPP = value
-                return
 
-            if code == 0b0110:
+            if code & 0b001000000:
                 self.TOS = value
-                return
 
-            if code == 0b0111:
+            if code & 0b01000000:
                 self.OPC = value
-                return
 
-            if code == 0b1000:
+            if code & 0b100000000:
                 self.H = value
-                return
-
-            return

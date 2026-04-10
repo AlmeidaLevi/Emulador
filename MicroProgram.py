@@ -1,3 +1,5 @@
+from array import array
+
 # ADDR endereço da proxima microinstrução
 # JAM, lista de 3 bits, [JPMC, JAMZ, JAMN]
 # ALU, lista de 8 bits, [f1, f2, ENa, ENb, INVa, INC, SLL8, SRA1]
@@ -5,7 +7,7 @@
 # [MAR, MDR, PC, SP, LV, CPP, TOS, OPC, H]
 # M lista de 3 bits, [fetch, read, write]
 # B "endereço" do registrador a ser lido pra pegar o valor B pra ULA
-
+"""
 class MicroInst:
     def __init__(self, ADDR: int, JAM: list[int], ALU: list[int], C: list[int], M: list[int], B: int):
         self.B = B & 0b1111
@@ -26,6 +28,9 @@ class MicroInst:
 
         for i in range(len(self.C)):
             self.JAM[i] = JAM[i] & 0b1
+"""
 
-micro_program = (MicroInst(0x0001, [0,0,0], [0, 0, 1, 1, 1, 1, 0, 0], [0, 0, 0, 0, 0, 0, 0, 1, 0], [1,0,0], 0b0010),
-                 MicroInst(0x0000, [0,0,0], [0, 1, 1, 1, 1, 1, 1, 0], [0, 1, 0, 0, 0, 0, 0, 0, 0], [1,0,0], 0b1000))
+microprogram = array("L", [0]) * 512
+microprogram[0] = 0b000000001000001100011000000000000000 # ADDR & JAM: Passa para a próxima instução; Processo: inicializa o contador (inicia com 1)
+microprogram[1] = 0b000000001001001110011000000000000000 # ADDR & JAM: Dá um "jump" se der overflow (resultado igual a 0), encerrando o processo; Processo: incrementa o contador em 1
+
