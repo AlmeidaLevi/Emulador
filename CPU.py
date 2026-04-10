@@ -25,13 +25,13 @@ class CPU:
             result = 0
             if not f2:
                 if ~f1 & ~f0: #AND
-                    result = ~b
-
-                elif ~f1 & f0: #OR
                     result = a & b
 
-                elif f1 & ~f0: #NOT_b
+                elif ~f1 & f0: #OR
                     result = a | b
+
+                elif f1 & ~f0: #NOT_b
+                    result = ~b
 
                 elif f1 & f0: #SUM
                     result = (a + b + inc) & 0xFFFFFFFF
