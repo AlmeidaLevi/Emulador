@@ -71,7 +71,5 @@ class ControlUnit:
 
         self.next_address(JMPC, JAMN, JAMZ, ADDR) #Define o endereço da próxima microinstrução
 
-        self.CPU.tick()
-
         return True
 

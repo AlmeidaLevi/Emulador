@@ -2,7 +2,6 @@ import Operations
 
 class CPU:
         def __init__(self):
-            self.cycles = 0
             self.MAR = 0
             self.MDR = 0
             self.PC = 0
@@ -15,9 +14,6 @@ class CPU:
             self.H = 0
             self.Z = 0
             self.N = 0
-
-        def tick(self):
-            self.cycles += 1
 
         def alu(self, a, b, left_shift, right_shift, f2, f1, f0, ENa, ENb, INVa, inc):
 
