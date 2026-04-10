@@ -39,28 +39,29 @@ class ControlUnit:
         if micro_inst == 0:
             return False
 
-        ADDR = (micro_inst >> 27) & 0b111111111
-        JMPC = (micro_inst >> 26) & 0b1
-        JAMN = (micro_inst >> 25) & 0b1
-        JAMZ = (micro_inst >> 24) & 0b1
-        ALU = (micro_inst >> 16) & 0b11111111
+        ADDR = (micro_inst >> 28) & 0b111111111
+        JMPC = (micro_inst >> 27) & 0b1
+        JAMN = (micro_inst >> 26) & 0b1
+        JAMZ = (micro_inst >> 25) & 0b1
+        ALU = (micro_inst >> 16) & 0b111111111
         C = (micro_inst >> 7) & 0b111111111
         M = (micro_inst >> 4) & 0b111
-        B = micro_inst & 0b111111111
+        B = micro_inst & 0b1111
 
         a_value = self.CPU.H # Valor A sempre vem do registrador H
         b_value = self.CPU.get_register_value(B)
 
-        left_shift = (ALU >> 7) & 1
-        right_shift = (ALU >> 6) & 1
+        left_shift = (ALU >> 8) & 1
+        right_shift = (ALU >> 7) & 1
+        f2 = (ALU >> 6) & 1
         f1 = (ALU >> 5) & 1
-        f2 = (ALU >> 4) & 1
+        f0 = (ALU >> 4) & 1
         ENa = (ALU >> 3) & 1
         INVa = (ALU >> 2) & 1
         ENb = (ALU >> 1) & 1
         inc = ALU & 1
 
-        result = self.CPU.alu(a_value, b_value, left_shift, right_shift, f1, f2, ENa, INVa, ENb, inc)
+        result = self.CPU.alu(a_value, b_value, left_shift, right_shift, f2, f1, f0, ENa, INVa, ENb, inc)
 
         print(result)
 
