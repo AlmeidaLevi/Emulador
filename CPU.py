@@ -21,31 +21,32 @@ class CPU:
             a = a if INVa == 0 else ~a
 
             b = (b & 0xFFFFFFFF) if ENb == 1 else 0
-
             result = 0
-            if not f2:
-                if ~f1 & ~f0: #AND
+
+            if f2 == 0:
+                if f1 == 0 and f0 == 0: #AND
                     result = a & b
 
-                elif ~f1 & f0: #OR
+                elif f1 == 0 and f0 == 1: #OR
                     result = a | b
 
-                elif f1 & ~f0: #NOT_b
+                elif f1 == 1 and f0 == 0: #NOT_b
                     result = ~b
 
-                elif f1 & f0: #SUM
+
+                elif f1 == 1 and f0 == 1: #SUM
                     result = (a + b + inc) & 0xFFFFFFFF
             else:
-                if ~f1 & ~f0: #XOR
+                if f1 == 0 and f0 == 0: #XOR
                     result = a ^ b
 
-                elif ~f1 & f0: #a * b (MULTIPLY)
+                elif f1 == 0 and f0 == 1: #a * b (MULTIPLY)
                     result = Operations.booth_multiply(0, a, b, 0, 32, 32)
 
-                elif f1 & ~f0: #a // b (INTEGER DIVISION)
+                elif f1 == 1 and f0 == 0: #a // b (INTEGER DIVISION)
                     result = Operations.non_restoring_division(0, a, b, 0, 32)[0]
 
-                elif f1 & f0: #a % b (MOD)
+                elif f1 == 1 and f0 == 1: #a % b (MOD)
                     result = Operations.non_restoring_division(0, a, b, 0, 32)[1]
 
             self.Z = 1 if result == 0 else 0
