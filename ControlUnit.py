@@ -5,16 +5,41 @@ from MicroProgram import microprogram
 class ControlUnit:
     def __init__(self):
         self.MPC = 0
-        self.MIC = MicroProgram.microprogram
+        self.MIC = microprogram
+        self.CPU = CPU()
+        self.RAM = RAM()
+
+    def set_memory_function(self, code):
+        if code & 0b100 != 0:
+            self.CPU.MDR = self.RAM.read_word(self.CPU.MAR)
+
+        if code & 0b010 != 0:
+            self.RAM.write_word(self.CPU.MAR, self.CPU.MDR)
+
+        if code & 0b001 != 0:
+            self.CPU.MBR = self.RAM.read_byte(self.CPU.PC)
+            self.CPU.PC += 1
+
+    def next_address(self, jmpc, jamn, jamz, addr):
+        self.MPC = addr #Define, por default, o ADDR da microinstrução como o próximo MPC
+
+        if jmpc:
+            self.MPC = addr | (self.CPU.MBR & 0xFF) #"Salta" para a próxima microintrução
+
+        if jamn and self.CPU.N:
+            self.MPC = self.MPC | 0x100 #Se o resultado da ALU for negativo, avança 256 endereços
+
+        if jamz and self.CPU.Z:
+            self.MPC = self.MPC | 0x100 #Se o resultado da ALU for zero, avança 256 endereços
 
 
-    def step(self, cpu: CPU, ram: RAM):
+    def step(self):
         micro_inst = self.MIC[self.MPC]
 
         if micro_inst == 0:
             return False
 
-        ADDR = (micro_inst >> 27) & 0b11111111
+        ADDR = (micro_inst >> 27) & 0b111111111
         JMPC = (micro_inst >> 26) & 0b1
         JAMN = (micro_inst >> 25) & 0b1
         JAMZ = (micro_inst >> 24) & 0b1
@@ -23,49 +48,29 @@ class ControlUnit:
         M = (micro_inst >> 4) & 0b111
         B = micro_inst & 0b111111111
 
+        a_value = self.CPU.H # Valor A sempre vem do registrador H
+        b_value = self.CPU.get_register_value(B)
 
-        if (M >> 2) & 0b1 != 0:
-            cpu.MDR = ram.read_word(cpu.MAR)
+        left_shift = (ALU >> 7) & 1
+        right_shift = (ALU >> 6) & 1
+        f1 = (ALU >> 5) & 1
+        f2 = (ALU >> 4) & 1
+        ENa = (ALU >> 3) & 1
+        INVa = (ALU >> 2) & 1
+        ENb = (ALU >> 1) & 1
+        inc = ALU & 1
 
-        if (M >> 1) & 0b1 != 0:
-            cpu.MBR = ram.read_byte(cpu.PC)
-        elif M & 0b1 != 0:
-            ram.write_word(cpu.MAR, cpu.MDR)
+        result = self.CPU.alu(a_value, b_value, left_shift, right_shift, f1, f2, ENa, INVa, ENb, inc)
 
-        a_value = cpu.H # Valor A sempre vem do registrador H
-        b_value = cpu.get_register_value(B)
+        print(result)
 
-        left_shift = (ALU >> 7) & 0b11
-        right_shift = (ALU >> 4) & 0b11
-        (ALU >> 6) & 0b11
-        f1 = (ALU >> 5) & 0b1
-        f2 = (ALU >> 4) & 0b1
-        ENa = (ALU >> 3) & 0b1
-        INVa = (ALU >> 2) & 0b1
-        ENb = (ALU >> 1) & 0b1
-        inc = ALU & 0b1
+        self.CPU.write_register_value(C, result)
 
-        result = cpu.alu(a_value, b_value, left_shift, right_shift, f1, f2, ENa, INVa, ENb, inc)
+        self.set_memory_function(M)
 
-        cpu.Z = 1 if result == 0 else 0
-        cpu.N = 1 if (result & 0x80000000) != 0 else 0
+        self.next_address(JMPC, JAMN, JAMZ, ADDR) #Define o endereço da próxima microinstrução
 
-        cpu.write_C_in_register(C, result)
-
-        #Fetch pode ser executado junto com read ou write
-
-        self.MPC = ADDR
-
-        if JMPC:
-            self.MPC = ADDR | cpu.MBR
-
-        if JAMZ and cpu.Z:
-            self.MPC = self.MPC | 0x100
-
-        elif JAMN and cpu.N:
-            self.MPC = self.MPC | 0x100
-
-        cpu.tick()
+        self.CPU.tick()
 
         return True
 
