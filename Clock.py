@@ -9,6 +9,7 @@ def start(devs, auto = True):
             input()
 
         for dev in devs:
-            success = success & dev.step()
+            success = success and dev.step()
         if success:
             ticks += 1
+    return ticks
