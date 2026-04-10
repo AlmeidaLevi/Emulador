@@ -26,23 +26,24 @@ class CPU:
 
             b = (b & 0xFFFFFFFF) if ENb == 1 else 0
 
-            if f1 | f2 == 0:
+            if not (f1 or f2):
                 result = a & b
 
-            elif f1 == 0 and f2 == 1:
+            elif not f1 and f2:
                 result = a | b
 
-            elif (f1 & f2) == 1:
+            elif f1 & f2:
                 result = (a + b + inc) & 0xFFFFFFFF
 
             else:
                 result = ~b
 
-            # ALU[6] == SLL8
+            self.Z = 1 if result == 0 else 0
+            self.N = 1 if (result & 0x80000000) != 0 else 0
+
             if left_shift == 1:
                 result = (result << 8) & 0xFFFFFFFF
 
-            # ALU[7] == SRA1
             if right_shift == 0b01:
                 result = (result >> 1) & 0xFFFFFFFF
 
@@ -82,41 +83,33 @@ class CPU:
 
             return 0
 
-        def write_C_in_register(self, code, value):
-            if code & 0b1:
+        def write_register_value(self, code, value):
+            """Recebe um valor do barramento C que é escrito em um ou mais dos registradores.
+            Os registradores que recebem o valor são selecionados a partir do código (code) dado pela Unidade de Controle"""
+
+            if code & 0b000000001:
                 self.MAR = value
-                return
 
-            if (code >> 1) & 0b1:
+            if code & 0b000000010:
                 self.MDR = value
-                return
 
-            if (code >> 2) & 0b1:
+            if code & 0b000000100:
                 self.PC = value
-                return
 
-            if (code >> 3) & 0b1:
+            if code & 0b000001000:
                 self.SP = value
-                return
 
-            if (code >> 4) & 0b1:
+            if code & 0b000010000:
                 self.LV = value
-                return
 
-            if (code >> 5) & 0b1:
+            if code & 0b000100000:
                 self.CPP = value
-                return
 
-            if (code >> 6) & 0b1:
+            if code & 0b001000000:
                 self.TOS = value
-                return
 
-            if(code >> 7) & 0b1:
+            if code & 0b01000000:
                 self.OPC = value
-                return
 
-            if (code >> 8) & 0b1:
+            if code & 0b100000000:
                 self.H = value
-                return
-
-            return
