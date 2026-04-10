@@ -1,4 +1,4 @@
-from RAM import RAM
+import Operations
 
 class CPU:
         def __init__(self):
@@ -19,24 +19,38 @@ class CPU:
         def tick(self):
             self.cycles += 1
 
-        def alu(self, a, b, left_shift, right_shift, f1, f2, ENa, ENb, INVa, inc):
+        def alu(self, a, b, left_shift, right_shift, f2, f1, f0, ENa, ENb, INVa, inc):
 
             a = (a & 0xFFFFFFFF) if ENa == 1 else 0
             a = a if INVa == 0 else ~a
 
             b = (b & 0xFFFFFFFF) if ENb == 1 else 0
 
-            if not (f1 or f2):
-                result = a & b
+            result = 0
+            if not f2:
+                if ~f1 & ~f0: #AND
+                    result = ~b
 
-            elif not f1 and f2:
-                result = a | b
+                elif ~f1 & f0: #OR
+                    result = a & b
 
-            elif f1 & f2:
-                result = (a + b + inc) & 0xFFFFFFFF
+                elif f1 & ~f0: #NOT_b
+                    result = a | b
 
+                elif f1 & f0: #SUM
+                    result = (a + b + inc) & 0xFFFFFFFF
             else:
-                result = ~b
+                if ~f1 & ~f0: #XOR
+                    result = a ^ b
+
+                elif ~f1 & f0: #a * b (MULTIPLY)
+                    result = Operations.booth_multiply(0, a, b, 0, 32, 32)
+
+                elif f1 & ~f0: #a // b (INTEGER DIVISION)
+                    result = Operations.non_restoring_division(0, a, b, 0, 32)[0]
+
+                elif f1 & f0: #a % b (MOD)
+                    result = Operations.non_restoring_division(0, a, b, 0, 32)[1]
 
             self.Z = 1 if result == 0 else 0
             self.N = 1 if (result & 0x80000000) != 0 else 0
