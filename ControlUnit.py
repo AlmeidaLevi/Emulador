@@ -57,19 +57,24 @@ class ControlUnit:
         f1 = (ALU >> 5) & 1
         f0 = (ALU >> 4) & 1
         ENa = (ALU >> 3) & 1
-        INVa = (ALU >> 2) & 1
-        ENb = (ALU >> 1) & 1
+        ENb = (ALU >> 2) & 1
+        INVa = (ALU >> 1) & 1
         inc = ALU & 1
 
-        result = self.CPU.alu(a_value, b_value, left_shift, right_shift, f2, f1, f0, ENa, INVa, ENb, inc)
-
-        print(result)
+        result = self.CPU.alu(a_value, b_value, left_shift, right_shift, f2, f1, f0, ENa, ENb, INVa, inc)
 
         self.CPU.write_register_value(C, result)
 
         self.set_memory_function(M)
 
         self.next_address(JMPC, JAMN, JAMZ, ADDR) #Define o endereço da próxima microinstrução
+
+        print(f"resultado: {result}")
+        print(f"MPC: {self.MPC}")
+        print(f"MAR: {self.CPU.MAR}")
+        print(f"MDR: {self.CPU.MDR}")
+        print(f"H: {self.CPU.H}")
+        print(f"TOS: {self.CPU.TOS}")
 
         return True
 
