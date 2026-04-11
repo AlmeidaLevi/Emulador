@@ -44,10 +44,11 @@ class CPU:
                     result = Operations.booth_multiply(0, a, b, 0, 32, 32)
 
                 elif f1 == 1 and f0 == 0: #a // b (INTEGER DIVISION)
-                    result = Operations.non_restoring_division(0, a, b, 0, 32)[0]
+                    print(a, b)
+                    result = Operations.division(a, b, 32)[0]
 
                 elif f1 == 1 and f0 == 1: #a % b (MOD)
-                    result = Operations.non_restoring_division(0, a, b, 0, 32)[1]
+                    result = Operations.division(a, b, 32)[1]
 
             self.Z = 1 if result == 0 else 0
             self.N = 1 if (result & 0x80000000) != 0 else 0
@@ -55,7 +56,7 @@ class CPU:
             if left_shift == 1:
                 result = (result << 8) & 0xFFFFFFFF
 
-            if right_shift == 0b01:
+            if right_shift == 1:
                 result = (result >> 1) & 0xFFFFFFFF
 
             return result
