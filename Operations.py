@@ -3,6 +3,18 @@ def to_signed(value, bits): #Garante que o valor mantenha o sinal
         return value - (1 << bits)
     return value
 
+def two_complement(num, bits):
+    mask = (1 << bits) - 1
+    return (num ^ mask) + 1
+
+def is_bigger_than(num1, num2, bits):
+    difference = num1 + two_complement(num2, bits)
+    signed = (difference >> (bits - 1)) & 1
+
+    if not signed:
+        return True
+    return False
+
 def booth_multiply(A, Q, M, Q_1, n, bits):
     mask = (1 << bits) - 1
 
@@ -36,34 +48,39 @@ def booth_multiply(A, Q, M, Q_1, n, bits):
     return to_signed(result, bits * 2)
 
 
-def non_restoring_division(A, Q, M, n, bits):
+def division(num1, num2, bits):
     mask = (1 << bits) - 1
 
-    msb_Q = (Q >> (bits - 1)) & 0b1 #Guarda o valor do MSB de Q
+    msb_num1 = (num1 >> (bits - 1)) & 1
+    msb_num2 = (num2 >> (bits - 1)) & 1
 
-    A = ((A << 1) | msb_Q) & mask #Left shift e joga o MSB de Q para o LSB de A
-    A = to_signed(A, bits) #Tratamento para manter o sinal
+    signed = msb_num1 ^ msb_num2
 
-    Q = (Q << 1) & mask #Left shift
+    if msb_num1:
+        num1 = two_complement(num1, bits) & mask
 
-    if A & (1 << (bits - 1)):
-        A = to_signed((A + M) & mask, bits) #Se for negativo, soma
-    else:
-        A = to_signed((A - M) & mask, bits) #Se for positivo ou igual a zero, subtrai
+    if msb_num2:
+        num2 = two_complement(num2, bits) & mask
 
-    if not A & (1 << (bits - 1)):
-        Q = Q | 1 #Se A for maior ou igual a zero, adiciona 1 à direita do quociente
-    else:
-        Q = Q & (mask - 1) #Se A for menor que zero, adiciona um 0 à direita do quociente
+    A = 0
+    n = 1
+    while n <= bits:
+        msb_num1 = (num1 >> (bits - 1)) & 1
 
-    n -= 1
+        A = (A << 1) & mask
+        A = A | msb_num1
+        num1 = (num1 << 1) & mask
 
-    if n > 0:
-        return non_restoring_division(A, Q, M, n, bits)
+        if is_bigger_than(A, num2, bits):
+            A = (A - num2) & mask
+            num1 = num1 | 0b1
+        else:
+            num1 = num1 | 0b0
 
-    if A & (1 << (bits - 1)):
-        A = to_signed((A + M) & mask, bits) #Ajusta o resto caso seja negativo
+        n += 1
 
-    return  to_signed(Q, bits),to_signed(A, bits) #A = resto; Q = quociente
+    if signed:
+        num1 = two_complement(num1, bits) & mask
+        A = two_complement(A, bits) & mask
 
-
+    return to_signed(num1, bits), to_signed(A, bits)
