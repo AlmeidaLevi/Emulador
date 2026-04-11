@@ -1,5 +1,3 @@
-from RAM import RAM
-from CPU import CPU
 from ControlUnit import ControlUnit
 import Clock
 
