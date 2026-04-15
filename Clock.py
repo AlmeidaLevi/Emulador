@@ -1,15 +1,17 @@
 ticks = 0
 
 def start(devs, auto = True):
-    global ticks
-    success = True
+   global ticks
 
-    while success:
-        if not auto:
-            input()
+   while True:
+      if not auto:
+         input()
+      success = True
+      for dev in devs:
+         success = success and dev.step()
+      if success:
+         ticks += 1
+      else:
+         break
 
-        for dev in devs:
-            success = success and dev.step()
-        if success:
-            ticks += 1
-    return ticks
+   print("Execução finalizada em ", ticks, " passos.")
