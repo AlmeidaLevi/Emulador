@@ -15,63 +15,62 @@ def is_bigger_than(num1, num2, bits):
         return True
     return False
 
-def booth_multiply(A, Q, M, Q_1, n, bits):
-    mask = (1 << bits) - 1
+def booth_multiply(Q, M):
+    mask = (1 << 32) - 1
 
-    if not (Q & 0b1) and Q_1:
-        A = to_signed((A + M) & mask, bits)
+    A = 0
+    Q_1 = 0
+    for i in range(0, 32):
 
-    elif (Q & 0b1) and not Q_1:
-        A = to_signed((A - M) & mask, bits)
+        if not (Q & 0b1) and Q_1:
+            A = to_signed((A + M) & mask, 32)
 
-    lsb_A = A & 0b1 #LSB de A
-    lsb_Q = Q & 0b1 #LSB de B
+        elif (Q & 0b1) and not Q_1:
+            A = to_signed((A - M) & mask, 32)
 
-    Q_1 = lsb_Q
+        lsb_A = A & 0b1 #LSB de A
+        lsb_Q = Q & 0b1 #LSB de B
 
-    Q = ((Q >> 1) | (lsb_A << (bits - 1))) & mask #Q é deslocado 1 bit para a direita e seu MSB recebe o LSB de A
+        Q_1 = lsb_Q
 
-    if A & (1 << (bits - 1)):
-        A = (A >> 1) | (1 << (bits - 1)) #Se A era negativo, permanece negativo
-    else:
-        A = A >> 1
+        Q = ((Q >> 1) | (lsb_A << (32 - 1))) & mask #Q é deslocado 1 bit para a direita e seu MSB recebe o LSB de A
 
-    A = to_signed(A & mask, bits)
+        if A & (1 << (32 - 1)):
+            A = (A >> 1) | (1 << (32 - 1)) #Se A era negativo, permanece negativo
+        else:
+            A = A >> 1
 
-    n -= 1 #Decresce o número de passos restantes
+        A = to_signed(A & mask, 32)
 
-    if n > 0:
-        return booth_multiply(A, Q, M, Q_1, n, bits)
+    result = ((A & mask) << 32) | Q # Retorna o resultado (A é a metade mais significativa e Q, a menos)
 
-    result = ((A & mask) << bits) | Q # Retorna o resultado (A é a metade mais significativa e Q, a menos)
-
-    return to_signed(result, bits * 2)
+    return to_signed(result, 32 * 2)
 
 
-def division(num1, num2, bits):
-    mask = (1 << bits) - 1
+def division(num1, num2):
+    mask = (1 << 32) - 1
 
-    msb_num1 = (num1 >> (bits - 1)) & 1
-    msb_num2 = (num2 >> (bits - 1)) & 1
+    msb_num1 = (num1 >> (32 - 1)) & 1
+    msb_num2 = (num2 >> (32 - 1)) & 1
 
     signed = msb_num1 ^ msb_num2
 
     if msb_num1:
-        num1 = two_complement(num1, bits) & mask
+        num1 = two_complement(num1, 32) & mask
 
     if msb_num2:
-        num2 = two_complement(num2, bits) & mask
+        num2 = two_complement(num2, 32) & mask
 
     A = 0
     n = 1
-    while n <= bits:
-        msb_num1 = (num1 >> (bits - 1)) & 1
+    for i in range(0, 32):
+        msb_num1 = (num1 >> (32 - 1)) & 1
 
         A = (A << 1) & mask
         A = A | msb_num1
         num1 = (num1 << 1) & mask
 
-        if is_bigger_than(A, num2, bits):
+        if is_bigger_than(A, num2, 32):
             A = (A - num2) & mask
             num1 = num1 | 0b1
         else:
@@ -80,7 +79,7 @@ def division(num1, num2, bits):
         n += 1
 
     if signed:
-        num1 = two_complement(num1, bits) & mask
-        A = two_complement(A, bits) & mask
+        num1 = two_complement(num1, 32) & mask
+        A = two_complement(A, 32) & mask
 
-    return to_signed(num1, bits), to_signed(A, bits)
+    return to_signed(num1, 32), to_signed(A, 32)

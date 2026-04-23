@@ -41,14 +41,14 @@ class CPU:
                     result = a ^ b
 
                 elif f1 == 0 and f0 == 1: #a * b (MULTIPLY)
-                    result = Operations.booth_multiply(0, a, b, 0, 32, 32)
+                    result = Operations.booth_multiply(a, b)
 
                 elif f1 == 1 and f0 == 0: #a // b (INTEGER DIVISION)
                     print(a, b)
-                    result = Operations.division(a, b, 32)[0]
+                    result = Operations.division(a, b)[0]
 
                 elif f1 == 1 and f0 == 1: #a % b (MOD)
-                    result = Operations.division(a, b, 32)[1]
+                    result = Operations.division(a, b)[1]
 
             self.Z = 1 if result == 0 else 0
             self.N = 1 if (result & 0x80000000) != 0 else 0
@@ -120,7 +120,7 @@ class CPU:
             if code & 0b001000000:
                 self.TOS = value
 
-            if code & 0b01000000:
+            if code & 0b010000000:
                 self.OPC = value
 
             if code & 0b100000000:
