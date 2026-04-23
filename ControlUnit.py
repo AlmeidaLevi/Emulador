@@ -69,12 +69,5 @@ class ControlUnit:
 
         self.next_address(JMPC, JAMN, JAMZ, ADDR) #Define o endereço da próxima microinstrução
 
-        print(f"resultado: {result}")
-        print(f"MPC: {self.MPC}")
-        print(f"MAR: {self.CPU.MAR}")
-        print(f"MDR: {self.CPU.MDR}")
-        print(f"H: {self.CPU.H}")
-        print(f"TOS: {self.CPU.TOS}")
-
         return True
 
