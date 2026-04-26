@@ -18,7 +18,6 @@ class ControlUnit:
 
         if code & 0b001 != 0:
             self.CPU.MBR = self.RAM.read_byte(self.CPU.PC)
-            self.CPU.PC += 1
 
     def next_address(self, jmpc, jamn, jamz, addr):
         self.MPC = addr #Define, por default, o ADDR da microinstrução como o próximo MPC
