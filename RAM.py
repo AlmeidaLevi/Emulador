@@ -3,7 +3,7 @@ from array import array
 
 class RAM:
     def __init__(self):
-        self.memory = array('L', [0]) * (1024 * 1024 // 4)
+        self.memory = array('L', [0]) * (1024 * 1024)
 
     def read_word(self, address):
         word_address = address & 0b111111111111111111

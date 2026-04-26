@@ -45,10 +45,10 @@ class CPU:
 
                 elif f1 == 1 and f0 == 0: #a // b (INTEGER DIVISION)
                     print(a, b)
-                    result = Operations.division(a, b)[0]
+                    result = Operations.division(b, a)[0]
 
                 elif f1 == 1 and f0 == 1: #a % b (MOD)
-                    result = Operations.division(a, b)[1]
+                    result = Operations.division(b, a)[1]
 
             self.Z = 1 if result == 0 else 0
             self.N = 1 if (result & 0x80000000) != 0 else 0

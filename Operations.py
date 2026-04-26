@@ -62,7 +62,6 @@ def division(num1, num2):
         num2 = two_complement(num2, 32) & mask
 
     A = 0
-    n = 1
     for i in range(0, 32):
         msb_num1 = (num1 >> (32 - 1)) & 1
 
@@ -75,8 +74,6 @@ def division(num1, num2):
             num1 = num1 | 0b1
         else:
             num1 = num1 | 0b0
-
-        n += 1
 
     if signed:
         num1 = two_complement(num1, 32) & mask
