@@ -49,6 +49,7 @@ class ControlUnit:
 
         if micro_inst == 0:
             return False
+        mpc_atual = self.MPC #Pra debug
 
         ADDR = (micro_inst >> 31) & 0b111111111
         JMPC = (micro_inst >> 30) & 0b1
@@ -59,6 +60,7 @@ class ControlUnit:
         M = (micro_inst >> 7) & 0b111
         B = (micro_inst >> 3) & 0b1111
         MD = micro_inst & 0b111
+
 
         a_value = self.CPU.H # Valor A sempre vem do registrador H
         b_value = self.CPU.get_register_value(B)
@@ -80,11 +82,10 @@ class ControlUnit:
         self.set_memory_function(M)
         self.set_MD_function(MD)
 
-        mpc_atual = self.MPC #Pra debug
+        if self.CPU.PC < 10:
+            print(ADDR, self.MPC)
         self.next_address(JMPC, JAMN, JAMZ, ADDR) #Define o endereço da próxima microinstrução
 
-
-        print(a_value, b_value, left_shift, right_shift, f2, f1, f0, ENa, ENb, INVa, inc)
 
         if mpc_atual == 0:
             print("INIT:")
@@ -111,9 +112,12 @@ class ControlUnit:
             print(f"A: {a_value} | B: {b_value} | Result: {result} | TOS {self.CPU.TOS}\n")
 
 
-        if mpc_atual == 0b000100110 or mpc_atual == 0b000100111:
-            print("MOV:", mpc_atual)
-            print(f"MBR: {self.CPU.MBR} | MBRD: {self.CPU.MBRD} | PC: {self.CPU.PC} | {self.RAM.read_byte(self.CPU.PC)}\n")
+        if mpc_atual >= 0b000100110 and mpc_atual <= 0b000101001:
+            if self.CPU.PC < 10:
+                print("MOV:", mpc_atual)
+                print(f"MBR: {self.CPU.MBR} | MBRD: {self.CPU.MBRD} | PC: {self.CPU.PC}\n")
+
+
 
         if mpc_atual == 0b100100111:
             print("MOV H:", mpc_atual)
