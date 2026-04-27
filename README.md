@@ -21,3 +21,18 @@ SUB:  0b000001110
 MUL:  0b000010100
 
 DIV:  0b000011010
+
+MOD:  0b000100000
+
+# Registradores barramento B
+MDR           = 0000
+PC            = 0001
+MBR(unsigned) = 0010
+MBR           = 0011
+SP            = 0100
+LV            = 0101
+CPP           = 0110
+TOS           = 0111
+OPC           = 1000
+
+
