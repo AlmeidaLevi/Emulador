@@ -24,6 +24,8 @@ DIV:  0b000011010
 
 MOD:  0b000100000
 
+MOV:  0b000100110
+
 # Registradores barramento B
 MDR           = 0000
 PC            = 0001
@@ -34,5 +36,6 @@ LV            = 0101
 CPP           = 0110
 TOS           = 0111
 OPC           = 1000
-
+MDRD          = 1001
+MBRD          = 1010
 
