@@ -62,6 +62,32 @@ class ControlUnit:
 
         result = self.CPU.alu(a_value, b_value, left_shift, right_shift, f2, f1, f0, ENa, ENb, INVa, inc)
 
+        if self.MPC == 0:
+            print("INIT:")
+            print(f"Proximo endereço: {ADDR}\n")
+
+        if self.MPC >= 0b000000010 and self.MPC <= 0b000000111:
+            print("PUSH:", self.MPC)
+            print(f"A: {a_value} | B: {b_value} | TOS {self.CPU.TOS}\n")
+
+        if self.MPC >= 0b000001000 and self.MPC <= 0b000001101:
+            print("SOMA:", self.MPC)
+            print(f"A: {a_value} | B: {b_value} | Result: {result} | TOS {self.CPU.TOS}\n")
+
+        if self.MPC >= 0b000001110 and self.MPC <= 0b000010011:
+            print("SUB:", self.MPC)
+            print(f"A: {a_value} | B: {b_value} | Result: {result} | TOS {self.CPU.TOS}\n")
+
+        if self.MPC >= 0b000010100 and self.MPC <= 0b000011001:
+            print("MUL:", self.MPC)
+            print(f"A: {a_value} | B: {b_value} | Result: {result} | TOS {self.CPU.TOS}\n")
+
+        if self.MPC >= 0b000011010 and self.MPC <= 0b000011111:
+            print("DIV:", self.MPC)
+            print(f"A: {a_value} | B: {b_value} | Result: {result} | TOS {self.CPU.TOS}\n")
+
+
+
         self.CPU.write_register_value(C, result)
 
         self.set_memory_function(M)
