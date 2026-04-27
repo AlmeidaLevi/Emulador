@@ -6,7 +6,7 @@ class CPU:
             self.MDR = 0
             self.PC = 0
             self.MBR = 0
-            self.SP = 0
+            self.SP = 0xDFFFF
             self.LV = 0
             self.CPP = 0
             self.TOS = 0
