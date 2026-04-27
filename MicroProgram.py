@@ -3,10 +3,13 @@ from array import array
 #   ADDR    JAM    ALU        C      M   B   MD
 # 000000000 000 000000000 000000000 000 0000 000
 
-microprogram = array("L", [0]) * 512
+microprogram = array("Q", [0]) * 512
 
 #init
 microprogram[0b000000000] = 0b000000000_100_000110101_000000100_001_0001_000  # PC = PC + 1; MBR = RAM[PC]; JMPC
+
+#HALT
+microprogram[0b000000001] = 0 # Para de executar o programa
 
 #PUSH addr
 microprogram[0b000000010] = 0b000000011_000_000110101_000000100_001_0001_000  # PC = PC + 1; MBR = RAM[PC]

@@ -21,13 +21,13 @@ class ControlUnit:
 
 
     def set_MD_function(self, code):
-        if code & 0b001 != 0:
+        if code & 0b100 != 0:
             self.CPU.MDRD = self.RAM.read_word(self.CPU.MARD)
 
         if code & 0b010 != 0:
             self.RAM.write_word(self.CPU.MARD, self.CPU.MDRD)
 
-        if code & 0b100 != 0:
+        if code & 0b001 != 0:
             self.CPU.MBRD = self.RAM.read_byte(self.CPU.PC)
 
 
@@ -80,46 +80,47 @@ class ControlUnit:
         self.set_memory_function(M)
         self.set_MD_function(MD)
 
+        mpc_atual = self.MPC #Pra debug
         self.next_address(JMPC, JAMN, JAMZ, ADDR) #Define o endereço da próxima microinstrução
 
 
         print(a_value, b_value, left_shift, right_shift, f2, f1, f0, ENa, ENb, INVa, inc)
 
-        if self.MPC == 0:
+        if mpc_atual == 0:
             print("INIT:")
             print(f"Proximo endereço: {self.MPC}\n")
 
-        if self.MPC >= 0b000000010 and self.MPC <= 0b000000111:
-            print("PUSH:", self.MPC)
+        if mpc_atual >= 0b000000010 and mpc_atual <= 0b000000111:
+            print("PUSH:", mpc_atual)
             print(f"A: {a_value} | B: {b_value} | TOS {self.CPU.TOS}\n")
 
-        if self.MPC >= 0b000001000 and self.MPC <= 0b000001101:
-            print("SOMA:", self.MPC)
+        if mpc_atual >= 0b000001000 and mpc_atual <= 0b000001101:
+            print("SOMA:", mpc_atual)
             print(f"A: {a_value} | B: {b_value} | Result: {result} | TOS {self.CPU.TOS}\n")
 
-        if self.MPC >= 0b000001110 and self.MPC <= 0b000010011:
-            print("SUB:", self.MPC)
+        if mpc_atual >= 0b000001110 and mpc_atual <= 0b000010011:
+            print("SUB:", mpc_atual)
             print(f"A: {a_value} | B: {b_value} | Result: {result} | TOS {self.CPU.TOS}\n")
 
-        if self.MPC >= 0b000010100 and self.MPC <= 0b000011001:
-            print("MUL:", self.MPC)
+        if mpc_atual >= 0b000010100 and mpc_atual <= 0b000011001:
+            print("MUL:", mpc_atual)
             print(f"A: {a_value} | B: {b_value} | Result: {result} | TOS {self.CPU.TOS}\n")
 
-        if self.MPC >= 0b000011010 and self.MPC <= 0b000011111:
-            print("DIV:", self.MPC)
+        if mpc_atual >= 0b000011010 and mpc_atual <= 0b000011111:
+            print("DIV:", mpc_atual)
             print(f"A: {a_value} | B: {b_value} | Result: {result} | TOS {self.CPU.TOS}\n")
 
 
-        if self.MPC == 0b000100110 or self.MPC == 0b000100111:
-            print("MOV:", self.MPC)
+        if mpc_atual == 0b000100110 or mpc_atual == 0b000100111:
+            print("MOV:", mpc_atual)
             print(f"MBR: {self.CPU.MBR} | MBRD: {self.CPU.MBRD} | PC: {self.CPU.PC} | {self.RAM.read_byte(self.CPU.PC)}\n")
 
-        if self.MPC == 0b100100111:
-            print("MOV H:", self.MPC)
+        if mpc_atual == 0b100100111:
+            print("MOV H:", mpc_atual)
             print(f"MBRD: {self.CPU.MBRD}\n")
 
-        if self.MPC == 0b100101000:
-            print("MOV OPC:", self.MPC)
+        if mpc_atual == 0b100101000:
+            print("MOV OPC:", mpc_atual)
             print(f"MBRD: {self.CPU.MBRD}\n")
 
 

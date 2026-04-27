@@ -47,7 +47,6 @@ class CPU:
                     result = Operations.booth_multiply(a, b)
 
                 elif f1 == 1 and f0 == 0: #a // b (INTEGER DIVISION)
-                    print(a, b)
                     result = Operations.division(b, a)[0]
 
                 elif f1 == 1 and f0 == 1: #a % b (MOD)
