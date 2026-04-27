@@ -13,6 +13,7 @@ class CPU:
             self.OPC = 0
             self.MARD = 0
             self.MDRD = 0
+            self.MBRD = 0
             self.H = 0
             self.Z = 0
             self.N = 0
@@ -94,6 +95,13 @@ class CPU:
 
             if code == 0b1000:
                 return self.OPC
+
+            if code == 0b1001:
+                return self.MDRD
+
+            if code == 0b1010:
+                return self.MBRD
+
 
             return 0
 

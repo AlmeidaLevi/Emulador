@@ -21,11 +21,14 @@ class ControlUnit:
 
 
     def set_MD_function(self, code):
-        if code & 0b01 != 0:
+        if code & 0b001 != 0:
             self.CPU.MDRD = self.RAM.read_word(self.CPU.MARD)
 
-        if code & 0b10 != 0:
+        if code & 0b010 != 0:
             self.RAM.write_word(self.CPU.MARD, self.CPU.MDRD)
+
+        if code & 0b100 != 0:
+            self.CPU.MBRD = self.RAM.read_byte(self.CPU.PC)
 
 
     def next_address(self, jmpc, jamn, jamz, addr):
