@@ -50,15 +50,15 @@ class ControlUnit:
         if micro_inst == 0:
             return False
 
-        ADDR = (micro_inst >> 30) & 0b111111111
-        JMPC = (micro_inst >> 29) & 0b1
-        JAMN = (micro_inst >> 28) & 0b1
-        JAMZ = (micro_inst >> 27) & 0b1
-        ALU = (micro_inst >> 18) & 0b111111111
-        C = (micro_inst >> 9) & 0b111111111
-        M = (micro_inst >> 6) & 0b111
-        B = (micro_inst >> 2) & 0b1111
-        MD = micro_inst & 0b11
+        ADDR = (micro_inst >> 31) & 0b111111111
+        JMPC = (micro_inst >> 30) & 0b1
+        JAMN = (micro_inst >> 29) & 0b1
+        JAMZ = (micro_inst >> 28) & 0b1
+        ALU = (micro_inst >> 19) & 0b111111111
+        C = (micro_inst >> 10) & 0b111111111
+        M = (micro_inst >> 7) & 0b111
+        B = (micro_inst >> 3) & 0b1111
+        MD = micro_inst & 0b111
 
         a_value = self.CPU.H # Valor A sempre vem do registrador H
         b_value = self.CPU.get_register_value(B)
@@ -75,9 +75,19 @@ class ControlUnit:
 
         result = self.CPU.alu(a_value, b_value, left_shift, right_shift, f2, f1, f0, ENa, ENb, INVa, inc)
 
+        self.CPU.write_register_value(C, result)
+
+        self.set_memory_function(M)
+        self.set_MD_function(MD)
+
+        self.next_address(JMPC, JAMN, JAMZ, ADDR) #Define o endereço da próxima microinstrução
+
+
+        print(a_value, b_value, left_shift, right_shift, f2, f1, f0, ENa, ENb, INVa, inc)
+
         if self.MPC == 0:
             print("INIT:")
-            print(f"Proximo endereço: {ADDR}\n")
+            print(f"Proximo endereço: {self.MPC}\n")
 
         if self.MPC >= 0b000000010 and self.MPC <= 0b000000111:
             print("PUSH:", self.MPC)
@@ -100,12 +110,18 @@ class ControlUnit:
             print(f"A: {a_value} | B: {b_value} | Result: {result} | TOS {self.CPU.TOS}\n")
 
 
-        self.CPU.write_register_value(C, result)
+        if self.MPC == 0b000100110 or self.MPC == 0b000100111:
+            print("MOV:", self.MPC)
+            print(f"MBR: {self.CPU.MBR} | MBRD: {self.CPU.MBRD} | PC: {self.CPU.PC} | {self.RAM.read_byte(self.CPU.PC)}\n")
 
-        self.set_memory_function(M)
-        self.set_MD_function(MD)
+        if self.MPC == 0b100100111:
+            print("MOV H:", self.MPC)
+            print(f"MBRD: {self.CPU.MBRD}\n")
 
-        self.next_address(JMPC, JAMN, JAMZ, ADDR) #Define o endereço da próxima microinstrução
+        if self.MPC == 0b100101000:
+            print("MOV OPC:", self.MPC)
+            print(f"MBRD: {self.CPU.MBRD}\n")
+
 
         return True
 
