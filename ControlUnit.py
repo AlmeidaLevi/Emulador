@@ -19,6 +19,15 @@ class ControlUnit:
         if code & 0b001 != 0:
             self.CPU.MBR = self.RAM.read_byte(self.CPU.PC)
 
+
+    def set_MD_function(self, code):
+        if code & 0b01 != 0:
+            self.CPU.MDRD = self.RAM.read_word(self.CPU.MARD)
+
+        if code & 0b10 != 0:
+            self.RAM.write_word(self.CPU.MARD, self.CPU.MDRD)
+
+
     def next_address(self, jmpc, jamn, jamz, addr):
         self.MPC = addr #Define, por default, o ADDR da microinstrução como o próximo MPC
 
@@ -38,14 +47,15 @@ class ControlUnit:
         if micro_inst == 0:
             return False
 
-        ADDR = (micro_inst >> 28) & 0b111111111
-        JMPC = (micro_inst >> 27) & 0b1
-        JAMN = (micro_inst >> 26) & 0b1
-        JAMZ = (micro_inst >> 25) & 0b1
-        ALU = (micro_inst >> 16) & 0b111111111
-        C = (micro_inst >> 7) & 0b111111111
-        M = (micro_inst >> 4) & 0b111
-        B = micro_inst & 0b1111
+        ADDR = (micro_inst >> 30) & 0b111111111
+        JMPC = (micro_inst >> 29) & 0b1
+        JAMN = (micro_inst >> 28) & 0b1
+        JAMZ = (micro_inst >> 27) & 0b1
+        ALU = (micro_inst >> 18) & 0b111111111
+        C = (micro_inst >> 9) & 0b111111111
+        M = (micro_inst >> 6) & 0b111
+        B = (micro_inst >> 2) & 0b1111
+        MD = micro_inst & 0b11
 
         a_value = self.CPU.H # Valor A sempre vem do registrador H
         b_value = self.CPU.get_register_value(B)
@@ -87,10 +97,10 @@ class ControlUnit:
             print(f"A: {a_value} | B: {b_value} | Result: {result} | TOS {self.CPU.TOS}\n")
 
 
-
         self.CPU.write_register_value(C, result)
 
         self.set_memory_function(M)
+        self.set_MD_function(MD)
 
         self.next_address(JMPC, JAMN, JAMZ, ADDR) #Define o endereço da próxima microinstrução
 

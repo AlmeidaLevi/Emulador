@@ -11,6 +11,8 @@ class CPU:
             self.CPP = 0
             self.TOS = 0
             self.OPC = 0
+            self.MARD = 0
+            self.MDRD = 0
             self.H = 0
             self.Z = 0
             self.N = 0
