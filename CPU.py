@@ -7,8 +7,8 @@ class CPU:
             self.PC = 0
             self.MBR = 0
             self.SP = 0xDFFFF
-            self.LV = 0
-            self.CPP = 0
+            self.LV = 0X80001
+            self.CPP = 0X80101
             self.TOS = 0
             self.OPC = 0
             self.MARD = 0
@@ -134,3 +134,7 @@ class CPU:
 
             if code & 0b100000000:
                 self.H = value
+"""
+            if code & 0b1000000000:
+                self.MARD = value
+"""
