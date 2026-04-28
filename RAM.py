@@ -22,16 +22,16 @@ class RAM:
 
         byte = word >> (byte_address << 3)
 
-        return byte
+        return byte & 0xFF
 
     def write_byte(self, address, value):
         word_address = (address & 0b1111111111111111111111) >> 2
         byte_address = address & 0b11
 
-        mask = ~(0xFF << (byte_address << 3))
+        mask = ~(0xFF << (byte_address << 3)) & 0xFFFFFFFF
 
         word = self.memory[word_address] & mask
 
         value = (value & 0xFF) << (byte_address << 3)
         word = word | value
-        self.memory[word_address] = word
+        self.memory[word_address] = word & 0xFFFFFFFF
