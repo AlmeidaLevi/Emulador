@@ -96,27 +96,33 @@ class ControlUnit:
             print(f"A: {a_value} | B: {b_value} | TOS {self.CPU.TOS}\n")
 
         if mpc_atual >= 0b000001000 and mpc_atual <= 0b000001101:
-            print("SOMA:", mpc_atual)
+            print("SUM_STACK:", mpc_atual)
             print(f"A: {a_value} | B: {b_value} | Result: {result} | TOS {self.CPU.TOS}\n")
 
         if mpc_atual >= 0b000001110 and mpc_atual <= 0b000010011:
-            print("SUB:", mpc_atual)
+            print("SUB_STACK:", mpc_atual)
             print(f"A: {a_value} | B: {b_value} | Result: {result} | TOS {self.CPU.TOS}\n")
 
         if mpc_atual >= 0b000010100 and mpc_atual <= 0b000011001:
-            print("MUL:", mpc_atual)
+            print("MUL_STACK:", mpc_atual)
             print(f"A: {a_value} | B: {b_value} | Result: {result} | TOS {self.CPU.TOS}\n")
 
         if mpc_atual >= 0b000011010 and mpc_atual <= 0b000011111:
-            print("DIV:", mpc_atual)
+            print("DIV_STACK:", mpc_atual)
             print(f"A: {a_value} | B: {b_value} | Result: {result} | TOS {self.CPU.TOS}\n")
 
+        if mpc_atual >= 0b000100000 and mpc_atual <= 0b000100101:
+            print("MOD_STACK:", mpc_atual)
+            print(f"A: {a_value} | B: {b_value} | Result: {result} | TOS {self.CPU.TOS}\n")
 
         if mpc_atual >= 0b000100110 and mpc_atual <= 0b000101001:
             if self.CPU.PC < 10:
                 print("MOV:", mpc_atual)
-                print(f"MBR: {self.CPU.MBR} | MBRD: {self.CPU.MBRD} | PC: {self.CPU.PC}\n")
+                print(f"MBR: {self.CPU.MBR} | MBRD: {self.CPU.MBRD} | PC: {self.CPU.PC} | H: {self.CPU.H} | OPC: {self.CPU.OPC}\n")
 
+        if mpc_atual >= 0b000101010 and mpc_atual <= 0b000110000:
+            print("STORE_LOCAL", mpc_atual)
+            print(f"MBR: {self.CPU.MBR} | MBRD: {self.CPU.MBRD} | PC: {self.CPU.PC} | H: {self.CPU.H} | LV: {self.CPU.LV} | MDR: {self.CPU.MDR} | MAR: {self.CPU.MAR}\n")
 
 
         if mpc_atual == 0b100100111:
